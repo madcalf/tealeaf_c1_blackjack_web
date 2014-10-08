@@ -1,0 +1,9 @@
+<!-- just to test what's in session -->
+
+<% session.each do |item| %>
+  <dl class="dl-horizontal">
+    <dt><%= "#{item[0]}" %></dt>
+    <dd><%= "#{item[1]}" %></dd>
+  </dl>
+<% end %>
+Total cards: <%= session[:deck].count if session[:deck] %>

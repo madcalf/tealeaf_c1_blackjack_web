@@ -1,0 +1,32 @@
+<!-- game.erb -->
+
+<h3>Welcome <%= "#{session[:player_name]}" %></h3>
+<ul class="inline">
+  <li><a href="/reset">Not <%= "#{session[:player_name]}?" %></a></p>
+  <li><a href="/new_game">New Game</a></p>
+</ul>
+<div>
+  <h4>Your cards:</h4>
+  <ul class="inline">
+    <% session[:player_cards].each do |card| %>
+      <li class="btn"><%= "#{card[0]} of #{card[1]}" %></li>
+    <% end %>
+  </ul>
+</div>
+Total: <%= "#{session[:player_value][:display]}" %>
+<p><%= session[:player_msg] %></p>
+
+<br>
+<hr>
+
+<div>
+  <h4>Dealer's Cards:</h4>
+  <ul class="inline">
+    <% session[:dealer_cards].each do |card| %>
+      <li class="btn"><%= "#{card[0]} of #{card[1]}" %></li>
+    <% end %>
+  </ul>
+</div>
+Total: <%= "#{session[:dealer_value][:display]}" %>
+<p><%= session[:dealer_msg] %></p>
+<a href="/game/dealer/next" class="btn">Next</a>
