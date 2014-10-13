@@ -100,8 +100,13 @@ get '/new_player' do
 end
 
 post '/new_player' do
-  session[:player_name] = params[:player_name].capitalize
-  redirect '/new_game'
+  if params[:player_name] == ""
+    @error = "Please give me a name!"
+    erb :new_player
+  else
+    session[:player_name] = params[:player_name].capitalize
+    redirect '/new_game'
+  end
 end
 
 get '/new_game' do

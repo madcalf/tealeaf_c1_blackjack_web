@@ -1,6 +1,5 @@
 <!-- game_player.erb -->
 
-
 <div id='container'>
   <h4 id='title'>Let's Play Blackjack!</h4>
   <div id='player'>
@@ -44,11 +43,13 @@
     </div>
   </div>
   
-  <% if @win_msg %>
-    <div class="alert alert-success"><%= @win_msg %></div>
-  <% elsif @loss_msg %>
-    <div class="alert alert-error"><%= @loss_msg %></div>
-  <% elsif @tie_msg %>
-    <div class="alert"><%= @tie_msg %></div>
-  <% end %>
+  <div class="result">
+    <% if @win_msg %>
+      <div class="alert alert-success"><%= @win_msg %></div>
+    <% elsif @loss_msg %>
+      <div class="alert alert-error"><%= @loss_msg %></div>
+    <% elsif @tie_msg %>
+      <div class="alert"><%= @tie_msg %></div>
+    <% end %>
+  </div>
 </div>
