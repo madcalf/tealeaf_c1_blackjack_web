@@ -1,0 +1,89 @@
+body {
+  font-family: sans-serif;
+  font-size: .6em;
+  margin-left: 10px;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 0;
+  margin-left: 10px;
+  padding: 0;
+  font-weight: bold;
+}
+
+h4 {
+  padding-top: 0px;
+  margin-top: 5px;
+}
+
+div#player {
+  margin-bottom: 20px;
+  padding-left: 20px;
+}
+
+div#dealer {
+  padding-left: 20px;
+}
+
+#container {
+  width: 80%;
+}
+
+#title {
+  text-align: center;  
+}
+
+
+form {
+  display: inline;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.well {
+  padding-top: 0px;
+  padding-bottom: 0px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  width: 700px;
+  border: 2px solid #eee;
+  border-radius: 20px;
+}
+
+#player .well.active {
+  border-color: #9c9;  /*light green*/
+}
+
+#dealer .well.active {
+  border-color: #d53;  /* red-ish */ 
+}
+
+.alert {
+  margin-top: 10px;
+  margin-bottom: 0;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: center;  
+  font-weight: bold;
+  font-size: 1.5em;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+#dealer .hidden {
+  display: none;  
+}
+
+.card {
+  height: 90px;
+  width: 62px;
+}
+
+.btn {
+  margin-top: 5px;
+  margin-right: -10px;  
+}
+

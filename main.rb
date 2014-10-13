@@ -6,13 +6,14 @@ use Rack::Session::Cookie, :key => 'rack.session',
                            :path => '/',
                            :secret => 'some_random_string'
                            
-BLACKJACK_VALUE = 21
+WIN_VALUE = 21
+STAY_VALUE = 17
 
 # ===============================================================
 # HELPERS
 # ===============================================================
 helpers do
-  def hand_value(cards)
+  def get_value(cards)
     value = 0
     soft_value = 0
     # preliminary total
@@ -30,7 +31,7 @@ helpers do
     if aces.count > 0
       soft_value = value
       aces.each do
-        soft_value += 10 if soft_value + 10 <= BLACKJACK_VALUE
+        soft_value += 10 if soft_value + 10 <= WIN_VALUE
       end
     end
     
@@ -44,6 +45,7 @@ helpers do
     result # remember this is a hash!!
   end 
   
+  
   def start_game
     suits = ['clubs', 'diamonds', 'hearts', 'spades']
     faces = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king', 'ace']
@@ -51,6 +53,7 @@ helpers do
     session[:deck].shuffle! 
     session[:player_cards] = []
     session[:dealer_cards] = []
+    session[:reveal_dealer] = false
 
     # deal cards
     2.times do 
@@ -60,23 +63,34 @@ helpers do
     2.times do
       session[:dealer_cards] << session[:deck].shift
     end    
+    
+    # -------------
+    # TESTING ONLY
+    # session[:player_cards] = [["10", "diamonds"], ["ace", "spades"]]
+    # session[:dealer_cards] = [["ace", "diamonds"], ["king", "hearts"]]
+    # -------------
   end
   
   def has_blackjack?(cards)
-    cards.count == 2 && hand_value(cards)[:final] == BLACKJACK_VALUE
+    cards.count == 2 && get_value(cards)[:final] == WIN_VALUE
   end
+  
   
   def bust?(cards)
-    hand_value(cards)[:final] > BLACKJACK_VALUE
+    get_value(cards)[:final] > WIN_VALUE
   end
   
+  
+  def get_image(card)
+    "/images/cards/#{card[1]}_#{card[0]}.jpg"
+  end
 end # helpers
+
 # ===============================================================
 # ROUTES
 # ===============================================================
 
 get '/' do
-  # "cookie: #{session[:player_name] == nil}"
   redirect 'new_player' if !session[:player_name]
   redirect '/new_game'
 end
@@ -95,126 +109,105 @@ get '/new_game' do
   redirect '/game/player'
 end
 
-# get '/game' do
-#   erb :game
-# end
-
 get '/game/player' do
-  # temp so we can reload with new cards for testing
-  # start_game 
-  # -------------
-   
-  session[:player_value] = hand_value(session[:player_cards])
-  session[:dealer_value] = hand_value(session[:dealer_cards])
+  session[:dealer_value] = get_value(session[:dealer_cards])
+  session[:dealer_msg] = "Dealer has #{session[:dealer_value][:display]}"
   
-  session[:player_msg] = "Your call, #{session[:player_name]}?"
-  session[:dealer_msg] = "..."
-
-  # test for blackjack after initial deal, but is not an automatic win.
-  # if session[:player_value][:final] == 21
+  session[:player_value] = get_value(session[:player_cards])
+  session[:player_msg] = "#{session[:player_name]}, you have #{session[:player_value][:display]}"
+ 
+  # test for blackjack after initial deal, but it's not an automatic win.
   if has_blackjack?(session[:player_cards])
-    session[:player_msg] = "Player has a blackjack!!"
+    session[:player_msg] = "#{session[:player_name]}, you hit blackjack!!"
+    session[:reveal_dealer] = true
     redirect 'game/end'
   end
-  
-  erb :game_player
+  @player_active = true
+  @dealer_active = false
+  erb :game
 end
 
-# MAKE THIS POST. MAKE BUTTONS FORMS
-get '/game/player/hit' do
-  # may not need to set this again here?
-  session[:dealer_value] = hand_value(session[:dealer_cards])
-
+post '/game/player/hit' do
   # add card to player
   session[:player_cards] << session[:deck].shift
-  session[:player_value] = hand_value(session[:player_cards])
+  session[:player_value] = get_value(session[:player_cards])
+  session[:dealer_value] = get_value(session[:dealer_cards])
 
-  # test for blackjack after initial deal, but is not an automatic win.
-  # if session[:player_value][:final] > 21
   if bust?(session[:player_cards])
-    session[:player_msg] = "Player busts!!"
+    session[:player_msg] = "Doh! You busted, #{session[:player_name]}!"
     redirect '/game/end'
   else
-    session[:player_msg] = "Your call, #{session[:player_name]}?"
+    session[:player_msg] = "#{session[:player_name]}, you have #{session[:player_value][:display]}"
   end
-  
-  erb :game_player
+  @player_active = true
+  @dealer_active = false
+  erb :game
 end
 
-get '/game/player/stay' do
-  # dealer's turn
-  val = hand_value(session[:player_cards])[:final]
-  session[:player_msg] = "#{session[:player_name]} stays at #{val}."
-  redirect '/game/dealer'  
-end
+post '/game/player/stay' do
+  val = get_value(session[:player_cards])[:final]
+  session[:player_msg] = "#{session[:player_name]}, you stay at #{val}."
 
-get '/game/dealer' do
-
-  # reveal dealer cards
-  # maybe we just do this in the dealer view?
-
-  session[:dealer_value] = hand_value(session[:dealer_cards])
-  
-  # test for blackjack. Only applies to initial deal
-  # if session[:dealer_cards].count == 2 && session[:dealer_value][:final] == 21
+  # reveal dealer cards and check for dealer blackjack
+  session[:reveal_dealer] = true
+  session[:dealer_value] = get_value(session[:dealer_cards])
   if has_blackjack?(session[:dealer_cards])
-    session[:dealer_msg] = "Dealelr has a blackjack!!"
+    session[:dealer_msg] = "Dealelr has blackjack!!"
     redirect '/game/end'
   end
   
-  # test for bust
-  # if session[:dealer_value][:final] > 21
-  if bust?(session[:dealer_cards])
-    session[:dealer_msg] = "Dealer busts!"
-    redirect '/game/end'
-  end
-  
-  erb :game_dealer
+  # switch to dealer turn
+  @player_active = false
+  @dealer_active = true
+  erb :game
 end
 
-# CHANGE TO POST. MAKE BUTTON A FORM
-get '/game/dealer/next' do
-  
-  if session[:dealer_value][:final] < 17
-    session[:dealer_cards] << session[:deck].shift
-    session[:dealer_value] = hand_value([:dealer_cards])
-    session[:dealer_msg] = "Dealer hits..."
-    redirect '/game/dealer'
+post '/game/dealer/next' do
+  if session[:dealer_value][:final] < STAY_VALUE
+    redirect '/game/dealer/hit'
   else
     redirect '/game/dealer/stay'
   end
-    
-  erb :game_dealer
+end
+
+get '/game/dealer/hit' do
+  session[:dealer_cards] << session[:deck].shift
+  session[:dealer_value] = get_value(session[:dealer_cards])
+  
+  if bust?(session[:dealer_cards])
+    session[:dealer_msg] = "Dealer busts!!"
+    redirect '/game/end'
+  else
+    session[:dealer_msg] = "Dealer hits for #{session[:dealer_value][:display]}"
+  end
+  @dealer_active = true
+  erb :game  
 end
 
 get '/game/dealer/stay' do
   session[:dealer_msg] = "Dealer stays at #{session[:dealer_value][:final]}"
-  # erb :game_end
   redirect '/game/end'
 end
 
 get '/game/end' do
-  puts "game/end"
-  # reveal dealers cards and make sure to test for dealer blackjack in case we can tie the player
   player_val = session[:player_value][:final]
   dealer_val = session[:dealer_value][:final]
-  
   if player_val == dealer_val
-    if has_blackjack?(session[:dealer_cards]) && !has_blackjack?(session:[player_cards])
-      session[:win_msg] = "Dealer wins!!"
+    if has_blackjack?(session[:dealer_cards]) && !has_blackjack?(session[:player_cards])
+      @loss_msg = "Dealer wins!!"
     else
-      session[:win_msg] = "Push! (#{session[:player_name]} and Dealer tie)!"
+      @tie_msg = "Push! (#{session[:player_name]} and Dealer tie)"
     end
   elsif bust?(session[:player_cards])
-      session[:win_msg] = "Dealer wins!!"
+      @loss_msg = "Dealer wins!!"
   elsif bust?(session[:dealer_cards])
-      session[:win_msg] = "#{session[:player_name]} wins!!"
+      @win_msg = "#{session[:player_name]}, you win!!"
   elsif player_val > dealer_val
-      session[:win_msg] = "#{session[:player_name]} wins!!"
+      @win_msg = "#{session[:player_name]}, you win!!"
   else
-      session[:win_msg] = "Dealer wins!!"
+      @loss_msg = "Dealer wins!!"
   end
-  erb :game_end
+  erb :game
 end
 
 get '/reset' do

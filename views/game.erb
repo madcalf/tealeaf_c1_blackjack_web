@@ -1,30 +1,54 @@
-<!-- game.erb -->
+<!-- game_player.erb -->
 
-<h3>Welcome <%= "#{session[:player_name]}" %></h3>
-<p><a href="/reset">Not <%= "#{session[:player_name]}?" %></a></p>
-<div>
-  <h4>Your cards:</h4>
-  <ul class="inline">
-    <% session[:player_cards].each do |card| %>
-      <li><%= "#{card[0]} of #{card[1]}" %></li>
-    <% end %>
-  </ul>
-</div>
-Total: <%= "#{@player_total}" %>
-<br>
-<br>
-<a href="/hit/player" class="btn">Hit</a>
-<a href="/stay/player" class="btn">Stay</a>
 
-<br>
-<hr>
-<br>
-
-<div>
-  <h4>Dealer's Cards:</h4>
-  <ul class="inline">
-    <% session[:dealer_cards].each do |card| %>
-      <li><%= "#{card[0]} of #{card[1]}" %></li>
-    <% end %>
-  </ul>
+<div id='container'>
+  <h4 id='title'>Let's Play Blackjack!</h4>
+  <div id='player'>
+    <div class='well <%= "active" if @player_active || @win_msg %> '>
+      <h5><%= "#{session[:player_name]}"  %></h5>
+      <ul class='inline'>
+        <% session[:player_cards].each do |card| %>
+          <li><img class='card img-polaroid' src="<%= get_image(card) %>" alt=""></li>
+        <% end %>
+      </ul>
+    </div>
+    <p><%= session[:player_msg] %></p>      
+    <div class='<%= "hidden" if !@player_active %>'>
+      <form id='hit' action='/game/player/hit' method='post'>
+        <input class="btn btn-small btn-success" type="submit" value="hit">
+      </form>
+      <form id="stay" action="/game/player/stay" method="post">
+        <input class="btn btn-small btn-warning" type="submit" value="stay">
+      </form>
+    </div>
+  </div>
+  
+  <div id="dealer">
+    <div class='well <%= "active" if @dealer_active || @loss_msg %>'>
+      <h5>Dealer</h5>
+      <ul class="inline">
+        <% session[:dealer_cards].each_with_index do |card, i| %>
+          <% if i == 0 && !session[:reveal_dealer] %>
+            <li><img class="card img-polaroid" src="/images/cards/cover.jpg" alt="cover.jpg"></li>
+          <% else %>
+            <li><img class="card img-polaroid" src="<%= get_image(card) %>" alt=""></li>
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+    <p><%= session[:dealer_msg] if session[:reveal_dealer] %></p>
+    <div class='<%= "hidden" if !@dealer_active %>'>
+      <form action="/game/dealer/next" method="post">
+        <input class="btn btn-small btn-info" type="submit" value="Next">
+      </form>
+    </div>
+  </div>
+  
+  <% if @win_msg %>
+    <div class="alert alert-success"><%= @win_msg %></div>
+  <% elsif @loss_msg %>
+    <div class="alert alert-error"><%= @loss_msg %></div>
+  <% elsif @tie_msg %>
+    <div class="alert"><%= @tie_msg %></div>
+  <% end %>
 </div>
