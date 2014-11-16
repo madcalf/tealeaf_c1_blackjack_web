@@ -110,6 +110,7 @@ post '/new_player' do
 end
 
 get '/new_game' do
+  redirect 'new_player' if !session[:player_name]
   start_game
   redirect '/game/player'
 end
@@ -151,7 +152,7 @@ end
 
 post '/game/player/stay' do
   val = get_value(session[:player_cards])[:final]
-  session[:player_msg] = "#{session[:player_name]}, you stay at #{val}."
+  session[:player_msg] = "#{session[:player_name]}, you're staying at #{val}."
 
   # reveal dealer cards and check for dealer blackjack
   session[:reveal_dealer] = true

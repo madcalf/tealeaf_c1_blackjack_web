@@ -2,9 +2,10 @@
 
 <div id='container'>
   <h4 id='title'>Let's Play Blackjack!</h4>
+
   <div id='player'>
     <div class='well <%= "active" if @player_active || @win_msg %> '>
-      <h5><%= "#{session[:player_name]}"  %></h5>
+      <h4><%= "#{session[:player_name]}"  %></h4>
       <ul class='inline'>
         <% session[:player_cards].each do |card| %>
           <li><img class='card img-polaroid' src="<%= get_image(card) %>" alt=""></li>
@@ -24,7 +25,7 @@
   
   <div id="dealer">
     <div class='well <%= "active" if @dealer_active || @loss_msg %>'>
-      <h5>Dealer</h5>
+      <h4>Dealer</h4>
       <ul class="inline">
         <% session[:dealer_cards].each_with_index do |card, i| %>
           <% if i == 0 && !session[:reveal_dealer] %>
@@ -38,7 +39,7 @@
     <p><%= session[:dealer_msg] if session[:reveal_dealer] %></p>
     <div class='<%= "hidden" if !@dealer_active %>'>
       <form action="/game/dealer/next" method="post">
-        <input class="btn btn-small btn-info" type="submit" value="Next">
+        <input class="btn btn-small btn-info" type="submit" value="Dealer's next move...">
       </form>
     </div>
   </div>
