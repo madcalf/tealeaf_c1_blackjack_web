@@ -83,6 +83,11 @@ form {
   border-radius: 9px;
 }
 
+/* cards for initial(?) hiding and showing */
+#dealer li img.hidden {
+  display: none;
+}
+
 .btn {
   margin-top: 10px;
   margin-right: -10px; 

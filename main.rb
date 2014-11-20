@@ -58,10 +58,12 @@ helpers do
     # deal cards
     2.times do 
       session[:player_cards] << session[:deck].shift
+      session[:player_new_cards] = [0, 1];
     end
     
     2.times do
       session[:dealer_cards] << session[:deck].shift
+      session[:dealer_new_cards] = [0, 1];
     end    
     
     # -------------
@@ -80,6 +82,13 @@ helpers do
     get_value(cards)[:final] > WIN_VALUE
   end
   
+  def is_new_card(index, who)
+    puts("is_new_card() index: #{index} who: #{who}")
+    puts("#{who=='player'}")
+    puts("#{who.eql?("player")}")
+    return session[:player_new_cards].include?(index) if who.eql?("player")
+    return session[:dealer_new_cards].include?(index) if who.eql?("dealer")
+  end
   
   def get_image(card)
     "/images/cards/#{card[1]}_#{card[0]}.jpg"
@@ -112,6 +121,7 @@ end
 get '/new_game' do
   redirect 'new_player' if !session[:player_name]
   start_game
+  @hide_dealer_cards = true;
   redirect '/game/player'
 end
 
@@ -128,6 +138,7 @@ get '/game/player' do
     session[:reveal_dealer] = true
     redirect 'game/end'
   end
+  # @hide_dealer_cards = true;
   @player_active = true
   @dealer_active = false
   erb :game
@@ -136,8 +147,10 @@ end
 post '/game/player/hit' do
   # add card to player
   session[:player_cards] << session[:deck].shift
+  session[:player_new_cards] = [session[:player_cards].length - 1]; # last card index
   session[:player_value] = get_value(session[:player_cards])
   session[:dealer_value] = get_value(session[:dealer_cards])
+  session[:dealer_new_cards] = []; # no new cards
 
   if bust?(session[:player_cards])
     session[:player_msg] = "Doh! You busted, #{session[:player_name]}!"
@@ -151,6 +164,7 @@ post '/game/player/hit' do
 end
 
 post '/game/player/stay' do
+  session[:player_new_cards] = []; # no new cards
   val = get_value(session[:player_cards])[:final]
   session[:player_msg] = "#{session[:player_name]}, you're staying at #{val}."
 
@@ -178,6 +192,7 @@ end
 
 get '/game/dealer/hit' do
   session[:dealer_cards] << session[:deck].shift
+  session[:dealer_new_cards] = [session[:dealer_cards].length - 1]; # last card index
   session[:dealer_value] = get_value(session[:dealer_cards])
   
   if bust?(session[:dealer_cards])
@@ -191,6 +206,7 @@ get '/game/dealer/hit' do
 end
 
 get '/game/dealer/stay' do
+  session[:dealer_new_cards] = []; # no new cards
   session[:dealer_msg] = "Dealer stays at #{session[:dealer_value][:final]}"
   redirect '/game/end'
 end
