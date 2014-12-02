@@ -83,9 +83,9 @@ helpers do
   end
   
   def is_new_card(index, who)
-    puts("is_new_card() index: #{index} who: #{who}")
-    puts("#{who=='player'}")
-    puts("#{who.eql?("player")}")
+    # puts("is_new_card() index: #{index} who: #{who}")
+    # puts("#{who=='player'}")
+    # puts("#{who.eql?("player")}")
     return session[:player_new_cards].include?(index) if who.eql?("player")
     return session[:dealer_new_cards].include?(index) if who.eql?("dealer")
   end
@@ -97,12 +97,20 @@ helpers do
   def set_random_name
     session[:default_name] = ["Boomer", "Helo", "Athena", "Apollo", "Starbuck", "Frodo", "Gandalf", "Mal", "Arwen", "Leia", "Luke", "Zora", "Sherlock", "Gaius", "Crashdown", "Zoe", "Jayne", "Galadriel", "Smeagol", "Beru", "Petra"].sample
   end 
+  
 end # helpers
-
 
 # ===============================================================
 # ROUTES
 # ===============================================================
+
+before do
+  # Add custom header with the route to all responses 
+  # since we can't get the url from the request header in js 
+  response.headers['Blackjack-Route'] = request.path_info
+  # can also pass multiple args to the headers method: 
+  # headers "Blackjack-Route" => request.path_info, "Dummy-Header" => "..." 
+end
 
 get '/' do
   session.clear
@@ -192,7 +200,7 @@ post '/game/player/hit' do
   end
   @player_active = true
   @dealer_active = false
-  erb :game
+  erb :game, :layout => false
 end
 
 post '/game/player/stay' do
@@ -275,6 +283,7 @@ get '/game/end' do
   if session[:total_cash] == 0
     @out_of_cash_msg = "You're all out of cash, #{session[:player_name]}!<br>Come back when you're not so broke!"
   end
+
   erb :game
 end
 

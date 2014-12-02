@@ -6,6 +6,7 @@ $(document).ready(function() {
   // Might want to name and call this function just for consistency
   // instead of using the anonymous func which still gets a little confusing...
   // Really not sure what the purpose of that outer anonymous function wrapper is...
+
   // $(function() {
 
   // --------- 
@@ -46,64 +47,96 @@ $(document).ready(function() {
   });
   // });
   
-  
+  // AJAX FOR HIT BUTTON
+  $(document).on('click', "#hit input", function() {
+    // submit the http request from here instead of letting the browser do it
+    $.ajax({
+      type: "POST",
+      url: "/game/player/hit",
+      context: this
+    }).done(function (data, textStatus, xhr) {
 
-  
-  // update the input field to match the calcualted auto-fill bet
-  // 
+      // Want to just replace the player div on hit. But need to know when the
+      // hit is a bust and redirects to /game/end so we can update the whole 
+      // game-container div. 
+      // To to that, test for the source route in the response header.
+      // Since the source url is not included in the Response headers, I added 
+      // a custom header called "Blackjack-Route" to all responses in the rb file.
+      // It contains the current route string (e.g. "/game/end"...);
+      
+      var path = xhr.getResponseHeader("Blackjack-Route");
+      if (path == "/game/player/hit") {
+        // update just the player div
+        $("#game_container").find("#player").replaceWith($(data).find("#player"));
+        return false;
+      }else {
+        // update the entire game_container div
+        // note: shouldn't need to turn off the layout in rb if we're plucking out the div
+        // instead of sending the entire data back.
+        $("#game_container").replaceWith($(data).find("#game_container"));
+      }
+      
+    }) // end done handler
+    
+    // Remember, this gets called immediately upon clicking 
+    // where as the done handler above is not called until the request is done.
+    // So we can't return anything conditional on the ajax response from here. 
+    // That all needs to happen from the done handler. 
+    // Here we either return true or false
+    return false;
+  }); // end click handler
   
   // --------- 
   // card animation 
   // --------- 
 
-  hidePlayerCards();
-  // hideDealerCards();
-  showPlayerCards();
-  var id = setTimeout(showDealerCards, 1000);
+  // hidePlayerCards();
+  // showPlayerCards();
+  // var id = setTimeout(showDealerCards, 1000);
   
   
-  function hidePlayerCards() {
-    var $playerCards = $('#player li img');
-    $playerCards.hide();  // hide all first    
-  }
+  // function hidePlayerCards() {
+  //   var $playerCards = $('#player li img');
+  //   $playerCards.hide();  // hide all first    
+  // }
   
-  // Note will want to simply show all player cards when dealer's turn
-  // Don't don't want to keep animating the last one at that point
-  function showPlayerCards() {
-    var $playerCards = $('#player li img');
-    var $newCards = $('player li img.new');
-    $playerCards.hide();  // hide all first
+  // // Note will want to simply show all player cards when dealer's turn
+  // // Don't don't want to keep animating the last one at that point
+  // function showPlayerCards() {
+  //   var $playerCards = $('#player li img');
+  //   var $newCards = $('player li img.new');
+  //   $playerCards.hide();  // hide all first
           
-    $playerCards.each(function(index, card) {
-      console.log($(this.type) + "  is new: " + $(this).hasClass("new"));
-      if ($(this).hasClass("new")) {
-        $(this).delay(300 * index).fadeIn('fast');
-      } else {
-        $(this).show();
-      }
-    });
-  }
+  //   $playerCards.each(function(index, card) {
+  //     // console.log($(this.type) + "  is new: " + $(this).hasClass("new"));
+  //     if ($(this).hasClass("new")) {
+  //       $(this).delay(300 * index).fadeIn('fast');
+  //     } else {
+  //       $(this).show();
+  //     }
+  //   });
+  // }
   
-  function hideDealerCards() {
-    var $dealerCards = $('#dealer li img');
-    $dealerCards.hide();  // hide all first    
-  }
+  // function hideDealerCards() {
+  //   var $dealerCards = $('#dealer li img');
+  //   $dealerCards.hide();  // hide all first    
+  // }
   
-  function showDealerCards() {
-    var $dealerCards = $('#dealer li img');
-    var $newCards = $('#dealer li img.new');
-    $dealerCards.hide();  // hide all first
+  // function showDealerCards() {
+  //   var $dealerCards = $('#dealer li img');
+  //   var $newCards = $('#dealer li img.new');
+  //   $dealerCards.hide();  // hide all first
     
-    $dealerCards.each(function(index, card) {
-      console.log($(this.type) + "  is new: " + $(this).hasClass("new"));
-      if ($(this).hasClass("new")) {
-        // $(this).hide();
-        $(this).delay(300 * index).fadeIn('fast');
-      } else {
-        $(this).show();
-      }
-    });
-  }
+  //   $dealerCards.each(function(index, card) {
+  //     console.log($(this.type) + "  is new: " + $(this).hasClass("new"));
+  //     if ($(this).hasClass("new")) {
+  //       // $(this).hide();
+  //       $(this).delay(300 * index).fadeIn('fast');
+  //     } else {
+  //       $(this).show();
+  //     }
+  //   });
+  // }
   
   function clamp(val, min_val, max_val) {
     return Math.min(Math.max(val, min_val),max_val);
