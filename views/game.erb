@@ -38,7 +38,7 @@
     </div>
     <p><%= session[:dealer_msg] if session[:reveal_dealer] %></p>
     <div class='<%= "hidden" if !@dealer_active %>'>
-      <form action="/game/dealer/next" method="post">
+      <form id="next" action="/game/dealer/next" method="post">
         <input class="btn btn-small btn-info" type="submit" value="Dealer's next move...">
       </form>
     </div>

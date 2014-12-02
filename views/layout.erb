@@ -11,39 +11,38 @@
 
 
   </head>
-  <body style="padding-top: 50px;">
-
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-            <ul class="nav">
-              <li class="btn btn-link"><a href="/new_player">New Player</a></li>
-              <li class="btn btn-link"><a href="/bet">New Game</a></li>
-            </ul>
-            
-            <ul class="stats">
-              <li>
-                <div id="total_cash_label" data-total-cash="<%= session[:total_cash] %>">Cash on hand: $<span class="value"></span></div>
-              </li>
-
-              <li>                
-                <!-- just let javascript set this and avoid dupe session[:bet] calls -->
-                <div id="bet_label" data-bet= "<%= session[:bet] %>" >Current bet: $<span class="value"></span></div>
-             </li>
+  <body>
+      <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+          <div class="container">
+              <ul class="nav">
+                <li class="btn btn-link"><a href="/new_player">New Player</a></li>
+                <li class="btn btn-link"><a href="/bet">New Game</a></li>
+              </ul>
               
-              <% if session[:player_name] != "" %>
-                <li><div id="player_label">Player: <span class="value"><%= session[:player_name] %></span> </div></li>
-              <% end %>
-            </ul>
+              <ul class="stats">
+                <li>
+                  <div id="total_cash_label" data-total-cash="<%= session[:total_cash] %>">Cash on hand: $<span class="value"></span></div>
+                </li>
+
+                <li>                
+                  <!-- just let javascript set this and avoid dupe session[:bet] calls -->
+                  <div id="bet_label" data-bet= "<%= session[:bet] %>" >Current bet: $<span class="value"></span></div>
+               </li>
+                
+                <% if session[:player_name] != "" %>
+                  <li><div id="player_label">Player: <span class="value"><%= session[:player_name] %></span> </div></li>
+                <% end %>
+              </ul>
+          </div>
         </div>
       </div>
-    </div>
 
-  <div id="content_container" class="container">
-    <%if @error %>
-      <div class="alert alert-error"><%=@error%></div>
-    <% end %>
-      <%= yield %>
-  </div>
+      <div id="content_container" class="container">
+        <%if @error %>
+          <div class="alert alert-error"><%=@error%></div>
+        <% end %>
+          <%= yield %>
+      </div>
   </body>
 </html>

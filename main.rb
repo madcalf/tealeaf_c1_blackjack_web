@@ -200,7 +200,7 @@ post '/game/player/hit' do
   end
   @player_active = true
   @dealer_active = false
-  erb :game, :layout => false
+  erb :game
 end
 
 post '/game/player/stay' do

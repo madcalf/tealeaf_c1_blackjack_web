@@ -1,28 +1,25 @@
+// ---------------------------------- 
+// ---------------------------------- 
 $(document).ready(function() {
   
-  // --------- 
-  // New Player Page 
-  // --------- 
   // Might want to name and call this function just for consistency
   // instead of using the anonymous func which still gets a little confusing...
-  // Really not sure what the purpose of that outer anonymous function wrapper is...
+  // Really not sure what the purpose of the outer anonymous function wrapper is...
 
   // $(function() {
 
-  // --------- 
-  // Slider and input for startup cash
-  // --------- 
-
-  var lastBet = $("#bet_label").data("bet");
-  var totalCash = $("#total_cash_label").data("totalCash");
-  $("#bet_label span.value").text(lastBet);
-  $("#total_cash_label span.value").text(totalCash);
+  // ----------------------------------
+  // Reset status displays in the nav bar
+  // ----------------------------------
+  updateStats();
     
+
+  // ----------------------------------
+  // Set up the slider and input for startup cash
+  // ----------------------------------
   var default_val = 1500;
   var min_val = 1000;
   var max_val = 5000;
-  // 
-  
   $("#slider_start_cash" ).slider({
     min:    min_val, 
     max:    max_val, 
@@ -47,13 +44,14 @@ $(document).ready(function() {
   });
   // });
   
-  // AJAX FOR HIT BUTTON
+  // ----------------------------------
+  // AJAX for player hit action
+  // ----------------------------------
   $(document).on('click', "#hit input", function() {
     // submit the http request from here instead of letting the browser do it
     $.ajax({
       type: "POST",
-      url: "/game/player/hit",
-      context: this
+      url: "/game/player/hit"
     }).done(function (data, textStatus, xhr) {
 
       // Want to just replace the player div on hit. But need to know when the
@@ -74,9 +72,16 @@ $(document).ready(function() {
         // note: shouldn't need to turn off the layout in rb if we're plucking out the div
         // instead of sending the entire data back.
         $("#game_container").replaceWith($(data).find("#game_container"));
+        // call this explicitly cuz it doesn'g get called on ajaxified actions
+
+        // update the navbar so we see the score update
+        // note new cash data is not available from the dom unless we update 
+        // the navbar (since the existing nav bar has the old data)
+        $(".navbar").replaceWith($(data).find(".navbar"));
+        updateStats();        
       }
       
-    }) // end done handler
+    }); // end done handler
     
     // Remember, this gets called immediately upon clicking 
     // where as the done handler above is not called until the request is done.
@@ -85,7 +90,50 @@ $(document).ready(function() {
     // Here we either return true or false
     return false;
   }); // end click handler
+
+  // ----------------------------------
+  // AJAX for player stay action
+  // ----------------------------------
+  $(document).on('click', '#stay input', function() {
+      $.ajax({
+        type:"POST",
+        url: "/game/player/stay"
+      }).done(function(data, statusText, xhr) {
+        // update the entire game container here, since we're transitioning
+        // to dealer's turn 
+        $("#game_container").replaceWith($(data).find("#game_container"));
+      });
+      return false;
+  });
   
+  // ----------------------------------
+  // AJAX for dealer hit action
+  // ----------------------------------
+  $(document).on('click', "#next input", function() {
+      $.ajax({
+        type: "POST",
+        url:  "/game/dealer/next",
+        context: this.parent
+      }).done(function(data, statusText, xhr) {
+          // draw just the player bit here, so we don't redraw the player cards?
+          var path = xhr.getResponseHeader("Blackjack-Route");
+          if (path == "/player/dealer/hit") {
+            $("#game_container").find("#dealer").replaceWith($(data).find("#dealer"));
+          } else {
+            $("#game_container").replaceWith($(data).find("#game_container"));
+            
+            // update the navbar so we see the score update
+            // note new cash data is not available from the dom unless we update 
+            // the navbar (since the existing nav bar has the old data)
+            $(".navbar").replaceWith($(data).find(".navbar"));
+            
+            // call this explicitly cuz it doesn'g get called on ajaxified actions
+            updateStats();
+          }
+      }); 
+      return false;
+  });
+    
   // --------- 
   // card animation 
   // --------- 
@@ -137,7 +185,14 @@ $(document).ready(function() {
   //     }
   //   });
   // }
-  
+
+  function updateStats() {
+    var lastBet = $("#bet_label").data("bet");
+    var totalCash = $("#total_cash_label").data("totalCash");
+    $("#bet_label span.value").text(lastBet);
+    $("#total_cash_label span.value").text(totalCash);  
+  }
+
   function clamp(val, min_val, max_val) {
     return Math.min(Math.max(val, min_val),max_val);
   }
