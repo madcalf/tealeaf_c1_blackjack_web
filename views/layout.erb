@@ -4,8 +4,12 @@
     <title>Tealeaf Sinatra Blackjack</title>
     <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/application.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
     <script src="/vendor/jquery-1.11.1.min.js" type="text/javascript"></script>
     <script src="/application.js" type="text/javascript"></script>
+    <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+
+
   </head>
   <body style="padding-top: 50px;">
 
@@ -13,14 +17,29 @@
       <div class="navbar-inner">
         <div class="container">
             <ul class="nav">
-              <li><a href="/new_player">New Player</a></li>
-              <li><a href="/new_game">New Game</a></li>
+              <li class="btn btn-link"><a href="/new_player">New Player</a></li>
+              <li class="btn btn-link"><a href="/bet">New Game</a></li>
+            </ul>
+            
+            <ul class="stats">
+              <li>
+                <div id="total_cash_label" data-total-cash="<%= session[:total_cash] %>">Cash on hand: $<span class="value"></span></div>
+              </li>
+
+              <li>                
+                <!-- just let javascript set this and avoid dupe session[:bet] calls -->
+                <div id="bet_label" data-bet= "<%= session[:bet] %>" >Current bet: $<span class="value"></span></div>
+             </li>
+              
+              <% if session[:player_name] != "" %>
+                <li><div id="player_label">Player: <span class="value"><%= session[:player_name] %></span> </div></li>
+              <% end %>
             </ul>
         </div>
       </div>
     </div>
 
-  <div class="container">
+  <div id="content_container" class="container">
     <%if @error %>
       <div class="alert alert-error"><%=@error%></div>
     <% end %>

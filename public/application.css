@@ -17,6 +17,10 @@ h4 {
   margin-top: 5px;
 }
 
+.navbar {
+  margin-bottom: 60px;
+}
+
 div#player {
   margin-bottom: 20px;
   padding-left: 20px;
@@ -26,8 +30,12 @@ div#dealer {
   padding-left: 20px;
 }
 
-#container {
+#game_container {
   width: 80%;
+}
+
+#content_container {
+  margin-top: 40px;
 }
 
 #title {
@@ -90,7 +98,29 @@ form {
 
 .btn {
   margin-top: 10px;
-  margin-right: -10px; 
+  margin-right: 10px; 
   font-size: .9em;
 }
 
+/* new player */
+#slider_start_cash {
+  width: 220px;
+}
+#slider_bet {
+  width: 220px;
+}
+
+ul.stats li{
+  display:inline;
+  float: right;
+  margin-top: 20px;
+  margin-right: 30px;
+}
+
+ul.stats li span.value {
+  font-weight: bold;
+}
+
+#end {
+  text-align: center
+}

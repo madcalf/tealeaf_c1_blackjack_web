@@ -1,0 +1,22 @@
+<!-- username.erb -->
+
+<!-- <h4>Welcome to Tealeaf Blackjack!</h4> -->
+
+<% if session[:total_cash].to_i > 0 %>
+  <form action="/bet" method="POST">
+    <label for="bet_input">Ok <%= session[:player_name] %>, place your bet!</label>
+    <input id="bet_input" type="text" name="bet_input" value= <%= session[:bet] %> >
+      
+    <!-- <span id="min_bet_label">10</span><div id="slider_bet" data-value="100"></div><span id="max_bet_label">10</span> -->
+    <div id="slider_bet" data-min-bet="<%= session[:min_bet] %>"></div>
+    <br>
+    <input type="submit" value="Let's Play!" class="btn btn-small">
+  </form>
+  <script src="/bet.js" type="text/javascript"></script>
+<% else %>
+  <div class="alert alert-error">
+    Sorry <%= session[:player_name] %>. You need cash to play!
+  </div>
+  <a href="/add_cash"><div class="btn btn-small">Add more cash?</div></a>
+  <a href="/new_player"><div class="btn btn-small">Nah, I'm done!</div></a>
+<% end %>

@@ -1,5 +1,61 @@
 $(document).ready(function() {
   
+  // --------- 
+  // New Player Page 
+  // --------- 
+  // Might want to name and call this function just for consistency
+  // instead of using the anonymous func which still gets a little confusing...
+  // Really not sure what the purpose of that outer anonymous function wrapper is...
+  // $(function() {
+
+  // --------- 
+  // Slider and input for startup cash
+  // --------- 
+
+  var lastBet = $("#bet_label").data("bet");
+  var totalCash = $("#total_cash_label").data("totalCash");
+  $("#bet_label span.value").text(lastBet);
+  $("#total_cash_label span.value").text(totalCash);
+    
+  var default_val = 1500;
+  var min_val = 1000;
+  var max_val = 5000;
+  // 
+  
+  $("#slider_start_cash" ).slider({
+    min:    min_val, 
+    max:    max_val, 
+    step:   100,
+    value:  default_val,
+    slide:  function(event, ui) {
+      $("#input_total_cash").val(ui.value);
+      $("#total_cash_label").text("Cash on hand: $" + ui.value);
+    }
+  });
+  
+  $("#input_total_cash").val(default_val); // default start value
+
+  // make sure entering manual values in the input field updates the slider
+  $("#input_total_cash").change(function() {
+    // limit entered value to our range defined above
+    var inputVal = parseInt($("#input_total_cash").val());
+    inputVal = clamp(inputVal, min_val, max_val);
+    $("#slider_start_cash").slider("value", inputVal);
+    // override the input field to match the clamped value
+    $("#input_total_cash").val(inputVal);
+  });
+  // });
+  
+  
+
+  
+  // update the input field to match the calcualted auto-fill bet
+  // 
+  
+  // --------- 
+  // card animation 
+  // --------- 
+
   hidePlayerCards();
   // hideDealerCards();
   showPlayerCards();
@@ -49,5 +105,7 @@ $(document).ready(function() {
     });
   }
   
-    
+  function clamp(val, min_val, max_val) {
+    return Math.min(Math.max(val, min_val),max_val);
+  }
 }); // end document.ready

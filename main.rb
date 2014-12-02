@@ -93,33 +93,65 @@ helpers do
   def get_image(card)
     "/images/cards/#{card[1]}_#{card[0]}.jpg"
   end
+  
+  def set_random_name
+    session[:default_name] = ["Boomer", "Helo", "Athena", "Apollo", "Starbuck", "Frodo", "Gandalf", "Mal", "Arwen", "Leia", "Luke", "Zora", "Sherlock", "Gaius", "Crashdown", "Zoe", "Jayne", "Galadriel", "Smeagol", "Beru", "Petra"].sample
+  end 
 end # helpers
+
 
 # ===============================================================
 # ROUTES
 # ===============================================================
 
 get '/' do
+  session.clear
+  session[:default_name] = "Random User" # not sure best place to put this
+  session[:min_bet] = 10;
+  
   redirect 'new_player' if !session[:player_name]
   redirect '/new_game'
 end
 
 get '/new_player' do
+  session[:bet] = 0
+  session[:total_cash] = 0
+  session[:player_name] = ""
   erb :new_player  
 end
 
 post '/new_player' do
+  # just use a default name instead of prompting with error text
   if params[:player_name] == ""
-    @error = "Please give me a name!"
-    erb :new_player
+    session[:player_name] = set_random_name; #session[:default_name]
   else
     session[:player_name] = params[:player_name].capitalize
-    redirect '/new_game'
   end
+  session[:total_cash] = params[:input_total_cash]
+  redirect '/bet'
+end
+
+get '/add_cash' do
+  erb :add_cash  
+end
+
+post '/add_cash' do
+  session[:total_cash] = params[:input_total_cash]
+  redirect '/bet'
+end
+
+get '/bet' do  
+  erb :bet
+end
+
+post '/bet' do
+  session[:bet] = params[:bet_input]
+  redirect '/new_game'
 end
 
 get '/new_game' do
   redirect 'new_player' if !session[:player_name]
+
   start_game
   @hide_dealer_cards = true;
   redirect '/game/player'
@@ -228,6 +260,20 @@ get '/game/end' do
       @win_msg = "#{session[:player_name]}, you win!!"
   else
       @loss_msg = "Dealer wins!!"
+  end
+  
+  # calculate money
+  # note: looks like session vars are strings, need to convert them!
+  if @loss_msg 
+    session[:total_cash] = session[:total_cash].to_i - session[:bet].to_i
+  elsif @win_msg
+    session[:total_cash] = session[:total_cash].to_i + session[:bet].to_i 
+  end
+  # clamp to zero if negative
+  # session[:total_cash] = Math.max(session[:total_cash], 0) 
+  session[:total_cash] = [0, session[:total_cash].to_i].max
+  if session[:total_cash] == 0
+    @out_of_cash_msg = "You're all out of cash, #{session[:player_name]}!<br>Come back when you're not so broke!"
   end
   erb :game
 end
