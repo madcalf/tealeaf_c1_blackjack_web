@@ -12,7 +12,8 @@ $(document).ready(function() {
   // Reset status displays in the nav bar
   // ----------------------------------
   updateStats();
-    
+  showCards("player");  
+  showCards("dealer");
 
   // ----------------------------------
   // Set up the slider and input for startup cash
@@ -47,39 +48,34 @@ $(document).ready(function() {
   // ----------------------------------
   // AJAX for player hit action
   // ----------------------------------
+  // Note
+  // Test for the source route in the response header as a way
+  // to determine when to update the nav bar. (Originally i thought i'd need
+  // to do this for anims, but turns out not so in this case. (But i still 
+  // wanted to figure out how to do it. :-) )
+  // Since the source url is not included in the Response headers, I added 
+  // a custom header called "Blackjack-Route" to all responses via the rb file.
+  // It contains the current route string (e.g. "/game/end"...);
+  // ----------------------------------
   $(document).on('click', "#hit input", function() {
     // submit the http request from here instead of letting the browser do it
     $.ajax({
       type: "POST",
       url: "/game/player/hit"
     }).done(function (data, textStatus, xhr) {
-
-      // Want to just replace the player div on hit. But need to know when the
-      // hit is a bust and redirects to /game/end so we can update the whole 
-      // game-container div. 
-      // To to that, test for the source route in the response header.
-      // Since the source url is not included in the Response headers, I added 
-      // a custom header called "Blackjack-Route" to all responses in the rb file.
-      // It contains the current route string (e.g. "/game/end"...);
-      
+      // update just the game container
+      $("#game_container").replaceWith($(data).find("#game_container"));
       var path = xhr.getResponseHeader("Blackjack-Route");
-      if (path == "/game/player/hit") {
-        // update just the player div
-        $("#game_container").find("#player").replaceWith($(data).find("#player"));
-        return false;
-      }else {
-        // update the entire game_container div
-        // note: shouldn't need to turn off the layout in rb if we're plucking out the div
-        // instead of sending the entire data back.
-        $("#game_container").replaceWith($(data).find("#game_container"));
-        // call this explicitly cuz it doesn'g get called on ajaxified actions
-
-        // update the navbar so we see the score update
-        // note new cash data is not available from the dom unless we update 
-        // the navbar (since the existing nav bar has the old data)
+      if (path != "/game/player/hit") {
+        // update the navbar so we can update the score update
+        // new cash data is not available from the DOM unless we update 
+        // the navbar
         $(".navbar").replaceWith($(data).find(".navbar"));
-        updateStats();        
+        // call this explicitly cuz it doesn'g get called on ajaxified actions
+        updateStats();       
       }
+      showCards("player");
+      showCards("dealer");
       
     }); // end done handler
     
@@ -102,6 +98,8 @@ $(document).ready(function() {
         // update the entire game container here, since we're transitioning
         // to dealer's turn 
         $("#game_container").replaceWith($(data).find("#game_container"));
+        showCards("player");
+        showCards("dealer");
       });
       return false;
   });
@@ -114,22 +112,21 @@ $(document).ready(function() {
         type: "POST",
         url:  "/game/dealer/next",
         context: this.parent
-      }).done(function(data, statusText, xhr) {
-          // draw just the player bit here, so we don't redraw the player cards?
-          var path = xhr.getResponseHeader("Blackjack-Route");
-          if (path == "/player/dealer/hit") {
-            $("#game_container").find("#dealer").replaceWith($(data).find("#dealer"));
-          } else {
-            $("#game_container").replaceWith($(data).find("#game_container"));
-            
-            // update the navbar so we see the score update
-            // note new cash data is not available from the dom unless we update 
-            // the navbar (since the existing nav bar has the old data)
+      })
+      .done(function(data, statusText, xhr) {
+        // update just the game container
+        $("#game_container").replaceWith($(data).find("#game_container"));
+        var path = xhr.getResponseHeader("Blackjack-Route");
+        if (path != "/player/dealer/hit") {
+            // update the navbar so we can update the score update
+            // new cash data is not available from the DOM unless we update 
+            // the navbar
             $(".navbar").replaceWith($(data).find(".navbar"));
-            
             // call this explicitly cuz it doesn'g get called on ajaxified actions
             updateStats();
           }
+          showCards("player");
+          showCards("dealer");
       }); 
       return false;
   });
@@ -138,54 +135,56 @@ $(document).ready(function() {
   // card animation 
   // --------- 
 
-  // hidePlayerCards();
-  // showPlayerCards();
-  // var id = setTimeout(showDealerCards, 1000);
-  
-  
-  // function hidePlayerCards() {
-  //   var $playerCards = $('#player li img');
-  //   $playerCards.hide();  // hide all first    
-  // }
-  
-  // // Note will want to simply show all player cards when dealer's turn
-  // // Don't don't want to keep animating the last one at that point
+
+  // this version uses the "new" class that gets added via the template
+  // to cards that were just dealt. So cards are only animated when dealt
+  function showCards(whichPlayer) {
+    var $cards = $("#" + whichPlayer + " .card");
+    var startDelay = 0;
+    $cards.each(function(index) {
+      if ($(this).hasClass("new")) {
+        // add extra delay for initial dealer cards, so player is dealt first
+        startDelay = (index < 2 && whichPlayer == 'dealer') ? 1000 : 0
+        // add delay between first and second cards
+        if (index == 1) var delayTime = 400;
+        $(this).delay(startDelay).delay(delayTime).animate( { width: "show" }, 200);
+      } else {
+        $(this).show();  // show immediately, don't animate
+      }
+    });
+  }
+
   // function showPlayerCards() {
-  //   var $playerCards = $('#player li img');
-  //   var $newCards = $('player li img.new');
-  //   $playerCards.hide();  // hide all first
-          
-  //   $playerCards.each(function(index, card) {
-  //     // console.log($(this.type) + "  is new: " + $(this).hasClass("new"));
+  //   var $cards = $("#player .card");
+  //   // this version uses the "new" class that gets added via the template
+  //   // for cards that were just dealt
+  //   $cards.each(function(index) {
   //     if ($(this).hasClass("new")) {
-  //       $(this).delay(300 * index).fadeIn('fast');
+  //       // add delay between first and second cards
+  //       if (index == 1) var delayTime = 400;
+  //       $(this).delay(delayTime).animate( { width: "show" }, 200);
   //     } else {
-  //       $(this).show();
+  //       $(this).show();  // show immediately, don't fade
   //     }
   //   });
-  // }
-  
-  // function hideDealerCards() {
-  //   var $dealerCards = $('#dealer li img');
-  //   $dealerCards.hide();  // hide all first    
   // }
   
   // function showDealerCards() {
-  //   var $dealerCards = $('#dealer li img');
-  //   var $newCards = $('#dealer li img.new');
-  //   $dealerCards.hide();  // hide all first
-    
-  //   $dealerCards.each(function(index, card) {
-  //     console.log($(this.type) + "  is new: " + $(this).hasClass("new"));
+  //   var $cards = $("#dealer .card");
+  //   // this version uses the "new" class that gets added via the template
+  //   $cards.each(function(index) {
+  //     // console.log($(this.type) + "  is new: " + $(this).hasClass("new"));
   //     if ($(this).hasClass("new")) {
-  //       // $(this).hide();
-  //       $(this).delay(300 * index).fadeIn('fast');
+  //       // $(this).fadeIn('normal');
+  //       $(this).animate( { width: "show" }, 200);
   //     } else {
-  //       $(this).show();
+  //       $(this).show();  // show immediately, don't fade
   //     }
   //   });
+
   // }
 
+  
   function updateStats() {
     var lastBet = $("#bet_label").data("bet");
     var totalCash = $("#total_cash_label").data("totalCash");

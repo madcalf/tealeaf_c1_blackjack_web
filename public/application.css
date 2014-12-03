@@ -57,6 +57,7 @@ form {
   margin-top: 5px;
   margin-bottom: 5px;
   width: 700px;
+  height: 150px;
   border: 2px solid #eee;
   border-radius: 20px;
 }
@@ -91,6 +92,7 @@ form {
   height: 100px;
   width: 69px;
   border-radius: 9px;
+  display: none;
 }
 
 /* cards for initial(?) hiding and showing */

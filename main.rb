@@ -205,6 +205,7 @@ end
 
 post '/game/player/stay' do
   session[:player_new_cards] = []; # no new cards
+  session[:dealer_new_cards] = []; # no new cards
   val = get_value(session[:player_cards])[:final]
   session[:player_msg] = "#{session[:player_name]}, you're staying at #{val}."
 
