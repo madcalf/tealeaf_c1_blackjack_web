@@ -2,21 +2,47 @@
 
 <!-- <h4>Welcome to Tealeaf Blackjack!</h4> -->
 
-<% if session[:total_cash].to_i > 0 %>
-  <form action="/bet" method="POST">
-    <label for="bet_input">Ok <%= session[:player_name] %>, place your bet!</label>
-    <input id="bet_input" type="text" name="bet_input" value= <%= session[:bet] %> >
-      
-    <!-- <span id="min_bet_label">10</span><div id="slider_bet" data-value="100"></div><span id="max_bet_label">10</span> -->
-    <div id="slider_bet" data-min-bet="<%= session[:min_bet] %>"></div>
-    <br>
-    <input type="submit" value="Let's Play!" class="btn btn-small">
-  </form>
-  <script src="/bet.js" type="text/javascript"></script>
-<% else %>
-  <div class="alert alert-error">
-    Sorry <%= session[:player_name] %>. You need cash to play!
+<form action="/bet" method="POST">
+  <div id="bet-modal" class="modal hide fade" aria-hidden="false" data-backdrop="static" keyboard="false">
+   
+    <div class="modal-header alert-info">
+      <h4>Ok <%= session[:player_name] %>, place your bet!</h4>
+    </div>
+    
+    <div class="modal-body">
+      <% if session[:total_cash].to_i > 0 %>
+       
+        <form action="/bet" method="POST">
+          <label for="bet_input">Ok <%= session[:player_name] %>, place your bet!</label>
+          <input id="bet_input" type="text" name="bet_input" value= <%= session[:bet] %> >
+           <div id="slider_bet" data-min-bet="<%= session[:min_bet] %>"></div>
+          <br>
+          <!-- <input type="submit" value="Let's Play!" class="btn btn-small"> -->
+          <h4>Minimum bet is $<%= session[:min_bet] %>.</h4>
+          <h4>You have $<%= session[:total_cash] %>.</h4>
+        </form>
+        <script src="/bet.js" type="text/javascript"></script>
+      <% else %>
+        <div class="alert alert-error">
+          Sorry <%= session[:player_name] %>. You need cash to play!
+        </div>
+        <!-- <a href="/game"><div class="btn btn-small">Play</div></a> -->
+        <!-- <a href="/"><div class="btn btn-small">Never mind!</div></a> -->
+      <% end %>  
+    </div>
+  
+    <div class="modal-footer">
+      <% if session[:total_cash].to_i > 0 %>
+        <input type="submit" value="Let's Play!" class="btn btn-primary">
+        <!-- <a href="/bet" class="btn btn-primary">Play Again</a> -->
+      <% else %>
+        <a href="/add_cash" class="btn btn-primary">Get more cash</a>        
+      <% end %>
+      <a href="/" class="btn">Nah! I'm done</a>
+    </div>
   </div>
-  <a href="/add_cash"><div class="btn btn-small">Add more cash?</div></a>
-  <a href="/new_player"><div class="btn btn-small">Nah, I'm done!</div></a>
-<% end %>
+</form>
+
+  <script>
+    $("#bet-modal").modal('show');
+  </script>

@@ -4,7 +4,7 @@
   <h4 id='title'>Let's Play Blackjack!</h4>
 
   <div id='player'>
-    <div class='well <%= "active" if @player_active || @win_msg %> '>
+    <div class='well <%= "active" if @player_active || @msg_type == "success" %> '>
       <h4><%= "#{session[:player_name]}"  %></h4>
       <ul class='inline'>
         <% session[:player_cards].each_with_index do |card, i| %>
@@ -24,7 +24,7 @@
   </div>
   
   <div id="dealer">
-    <div class='well <%= "active" if @dealer_active || @loss_msg %>'>
+    <div class='well <%= "active" if @dealer_active || @msg_type == "error" %>'>
       <h4>Dealer</h4>
       <ul class="inline">
         <% session[:dealer_cards].each_with_index do |card, i| %>
@@ -39,24 +39,40 @@
     <p><%= session[:dealer_msg] if session[:reveal_dealer] %></p>
     <div class='<%= "hidden" if !@dealer_active %>'>
       <form id="next" action="/game/dealer/next" method="post">
-        <input class="btn btn-small btn-info" type="submit" value="Dealer's next move...">
+        <input class="hidden btn btn-small btn-info" type="submit" value="Dealer's next move...">
       </form>
     </div>
   </div>
   
-  <div class="result">
-    <% if @win_msg %>
-      <div class="alert alert-success"><%= @win_msg %></div>
-    <% elsif @loss_msg %>
-      <div class="alert alert-error"><%= @loss_msg %></div>
-    <% elsif @tie_msg %>
-      <div class="alert"><%= @tie_msg %></div>
-    <% end %>
+  <!-- MODAL FOR END GAME -->
+  <div id="end-modal" class="modal hide fade" aria-hidden="false">
+    <div class="modal-header alert-<%= @msg_type %>">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3><%= @end_msg_header %></h3>
+    </div>
+    <div class="modal-body">
+      <h4><%= @end_msg %></h4>
+      <% if @out_of_cash_msg %>
+        <div class="alert alert-error"><%= @out_of_cash_msg %></div>
+      <% end %>      
+    </div>
+    <div class="modal-footer">
+      <% if @out_of_cash_msg %>
+        <a href="/add_cash" class="btn btn-primary">Get more cash</a>
+      <% else %>
+        <a href="/bet" class="btn btn-primary">Play Again</a>
+      <% end %>      
+      <a href="/" class="btn">Nah, I'm done!</a>
+    </div>
   </div>
-  
-  <div id="end">
-    <% if @out_of_cash_msg %>
-      <div class="alert alert-error"><%= @out_of_cash_msg %></div>
-    <% end %>
-  </div>
+ 
+ <!-- DISPLAY MODAL IF END GAME -->
+  <% if @end_msg %>
+      <script>
+        window.setTimeout(function() {
+          $("#end-modal").modal('show');
+        }, 1100);
+      </script>
+  <% end %>  
+    
 </div>

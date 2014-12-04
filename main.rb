@@ -115,7 +115,7 @@ end
 get '/' do
   session.clear
   session[:default_name] = "Random User" # not sure best place to put this
-  session[:min_bet] = 10;
+  session[:min_bet] = 20;
   
   redirect 'new_player' if !session[:player_name]
   redirect '/new_game'
@@ -131,7 +131,7 @@ end
 post '/new_player' do
   # just use a default name instead of prompting with error text
   if params[:player_name] == ""
-    session[:player_name] = set_random_name; #session[:default_name]
+    session[:player_name] = set_random_name;
   else
     session[:player_name] = params[:player_name].capitalize
   end
@@ -220,9 +220,22 @@ post '/game/player/stay' do
   # switch to dealer turn
   @player_active = false
   @dealer_active = true
+  
+  # auto deal dealer card 
+  # redirect '/game/dealer/next'
   erb :game
 end
 
+# for automated dealer
+get '/game/dealer/next' do
+  if session[:dealer_value][:final] < STAY_VALUE
+    redirect '/game/dealer/hit'
+  else
+    redirect '/game/dealer/stay'
+  end
+end
+
+# manual button controlled dealer
 post '/game/dealer/next' do
   if session[:dealer_value][:final] < STAY_VALUE
     redirect '/game/dealer/hit'
@@ -243,6 +256,9 @@ get '/game/dealer/hit' do
     session[:dealer_msg] = "Dealer hits for #{session[:dealer_value][:display]}"
   end
   @dealer_active = true
+ 
+  # redirect 'game/dealer/next'
+  # sleep(1) # this causes one delay then all hits, not a delay between hits
   erb :game  
 end
 
@@ -257,32 +273,51 @@ get '/game/end' do
   dealer_val = session[:dealer_value][:final]
   if player_val == dealer_val
     if has_blackjack?(session[:dealer_cards]) && !has_blackjack?(session[:player_cards])
-      @loss_msg = "Dealer wins!!"
+      @end_msg_header = "Dealer wins!!"
+      @end_msg = "The dealer hit blackjack, and you, um... didn't!"
+      @msg_type = "error"
     else
-      @tie_msg = "Push! (#{session[:player_name]} and Dealer tie)"
+      @end_msg_header = "Push! "
+      @end_msg = "#{session[:player_name]} and Dealer tie."
+      @msg_type = "info"
     end
   elsif bust?(session[:player_cards])
-      @loss_msg = "Dealer wins!!"
+      @end_msg_header = "Dealer wins!!"
+      @end_msg = "Cuz you busted, #{session[:player_name]}!"
+      @msg_type = "error"
   elsif bust?(session[:dealer_cards])
-      @win_msg = "#{session[:player_name]}, you win!!"
+      @end_msg_header = "#{session[:player_name]}, you win!!"
+      @end_msg = "Dealer busted. Lucky for you!"
+      @msg_type = "success"
   elsif player_val > dealer_val
-      @win_msg = "#{session[:player_name]}, you win!!"
+      @end_msg_header = "#{session[:player_name]}, you win!!"
+      @msg_type = "success"
+      if has_blackjack?(session[:player_cards])
+        @end_msg = "You hit blackjack! Nice going!"
+      else
+        @end_msg = "Nice playing!"
+      end
   else
-      @loss_msg = "Dealer wins!!"
+      @end_msg_header = "Dealer wins!!"
+      @msg_type = "error"
+      if has_blackjack?(session[:dealer_cards])
+        @end_msg = "The dealer hit blackjack, and you, um... didn't!"
+      else
+        @end_msg = "Too bad, #{session[:player_name]}. Better luck next time."
+      end
   end
   
   # calculate money
   # note: looks like session vars are strings, need to convert them!
-  if @loss_msg 
+  if @msg_type == "error" 
     session[:total_cash] = session[:total_cash].to_i - session[:bet].to_i
-  elsif @win_msg
+  elsif @msg_type == "succedss"
     session[:total_cash] = session[:total_cash].to_i + session[:bet].to_i 
   end
   # clamp to zero if negative
-  # session[:total_cash] = Math.max(session[:total_cash], 0) 
   session[:total_cash] = [0, session[:total_cash].to_i].max
-  if session[:total_cash] == 0
-    @out_of_cash_msg = "You're all out of cash, #{session[:player_name]}!<br>Come back when you're not so broke!"
+  if session[:total_cash] == 0 || session[:total_cash] < session[:min_bet]
+    @out_of_cash_msg = "You're out of cash, #{session[:player_name]}!<br>Come back when you're not so broke!"
   end
 
   erb :game

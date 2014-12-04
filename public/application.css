@@ -111,6 +111,8 @@ form {
   width: 220px;
 }
 #slider_bet {
+  margin-left:auto;
+  margin-right:auto;
   width: 220px;
 }
 
@@ -123,6 +125,10 @@ ul.stats li{
 
 ul.stats li span.value {
   font-weight: bold;
+}
+
+.modal {
+  text-align: center;
 }
 
 #end {

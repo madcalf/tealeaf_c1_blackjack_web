@@ -16,7 +16,7 @@ $(document).ready(function() {
   
   // make the bet inputfield and curent slider position reflect the last 
   // bet as default
-  var minBet = 10;
+  var minBet = $("#slider_bet").data("minBet");
   var defaultBet = clamp(lastBet, minBet, totalCash);
   // default the auto-fill bet to the last bet, but limit to cash the user has on hand
   $("#bet_input").val(defaultBet); 

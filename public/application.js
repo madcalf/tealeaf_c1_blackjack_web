@@ -2,10 +2,7 @@
 // ---------------------------------- 
 $(document).ready(function() {
   
-  // Might want to name and call this function just for consistency
-  // instead of using the anonymous func which still gets a little confusing...
-  // Really not sure what the purpose of the outer anonymous function wrapper is...
-
+  // Really not sure what the purpose of this outer anonymous function wrapper was for...
   // $(function() {
 
   // ----------------------------------
@@ -66,7 +63,8 @@ $(document).ready(function() {
       // update just the game container
       $("#game_container").replaceWith($(data).find("#game_container"));
       var path = xhr.getResponseHeader("Blackjack-Route");
-      if (path != "/game/player/hit") {
+      // if (path != "/game/player/hit") {
+      if (path == "/game/end") {
         // update the navbar so we can update the score update
         // new cash data is not available from the DOM unless we update 
         // the navbar
@@ -100,9 +98,20 @@ $(document).ready(function() {
         $("#game_container").replaceWith($(data).find("#game_container"));
         showCards("player");
         showCards("dealer");
+        
+        // make sure we weren't redirected to /game/end (which would happen
+        // here if dealer has blackjack)
+        var path = xhr.getResponseHeader("Blackjack-Route");
+        if (path != "/game/end"){
+          // trigger automatic dealer next action 
+          window.setTimeout(function() {
+            $("#next input").trigger("click");
+          }, 600);          
+        }       
       });
       return false;
   });
+  
   
   // ----------------------------------
   // AJAX for dealer hit action
@@ -117,82 +126,81 @@ $(document).ready(function() {
         // update just the game container
         $("#game_container").replaceWith($(data).find("#game_container"));
         var path = xhr.getResponseHeader("Blackjack-Route");
-        if (path != "/player/dealer/hit") {
-            // update the navbar so we can update the score update
-            // new cash data is not available from the DOM unless we update 
-            // the navbar
-            $(".navbar").replaceWith($(data).find(".navbar"));
-            // call this explicitly cuz it doesn'g get called on ajaxified actions
-            updateStats();
-          }
-          showCards("player");
-          showCards("dealer");
+        // if (path != "/game/dealer/hit") {
+        showCards("player");
+        showCards("dealer");
+        
+        if (path == "/game/dealer/hit") {
+          window.setTimeout(function() {
+            $("#next input").trigger("click");
+          }, 600);
+ 
+        }else if (path == "/game/end") {
+          // update the navbar so we can update the score update
+          // new cash data is not available from the DOM unless we update 
+          // the navbar
+          $(".navbar").replaceWith($(data).find(".navbar"));
+          // call this explicitly cuz it doesn'g get called on ajaxified actions
+          updateStats();
+        }
+
       }); 
       return false;
   });
     
-  // --------- 
-  // card animation 
-  // --------- 
-
-
+    
   // this version uses the "new" class that gets added via the template
   // to cards that were just dealt. So cards are only animated when dealt
+  // "new" class is removed from each card after it is dealt
   function showCards(whichPlayer) {
+    var animDuration = 300;    // duration of the slide effect
+    var secondCardDelay = 400; // delay between first and second cards
     var $cards = $("#" + whichPlayer + " .card");
-    var startDelay = 0;
     $cards.each(function(index) {
       if ($(this).hasClass("new")) {
         // add extra delay for initial dealer cards, so player is dealt first
-        startDelay = (index < 2 && whichPlayer == 'dealer') ? 1000 : 0
+        var startDelay = (index < 2 && whichPlayer == 'dealer') ? 1000 : 0
         // add delay between first and second cards
-        if (index == 1) var delayTime = 400;
-        $(this).delay(startDelay).delay(delayTime).animate( { width: "show" }, 200);
+        var delayBetweenCards = (index == 1) ? secondCardDelay: 0;
+        // if (index == 1) delayBetweenCards = secondCardDelay;
+        $(this).delay(startDelay).delay(delayBetweenCards).animate( { width: "show" }, animDuration);
       } else {
-        $(this).show();  // show immediately, don't animate
+        // show immediately, don't animate
+        // this effectively makes it look like these cards were there all along
+        $(this).show();  
       }
     });
   }
 
-  // function showPlayerCards() {
-  //   var $cards = $("#player .card");
-  //   // this version uses the "new" class that gets added via the template
-  //   // for cards that were just dealt
-  //   $cards.each(function(index) {
-  //     if ($(this).hasClass("new")) {
-  //       // add delay between first and second cards
-  //       if (index == 1) var delayTime = 400;
-  //       $(this).delay(delayTime).animate( { width: "show" }, 200);
-  //     } else {
-  //       $(this).show();  // show immediately, don't fade
-  //     }
-  //   });
-  // }
-  
-  // function showDealerCards() {
-  //   var $cards = $("#dealer .card");
-  //   // this version uses the "new" class that gets added via the template
-  //   $cards.each(function(index) {
-  //     // console.log($(this.type) + "  is new: " + $(this).hasClass("new"));
-  //     if ($(this).hasClass("new")) {
-  //       // $(this).fadeIn('normal');
-  //       $(this).animate( { width: "show" }, 200);
-  //     } else {
-  //       $(this).show();  // show immediately, don't fade
-  //     }
-  //   });
-
-  // }
-
-  
   function updateStats() {
     var lastBet = $("#bet_label").data("bet");
     var totalCash = $("#total_cash_label").data("totalCash");
     $("#bet_label span.value").text(lastBet);
     $("#total_cash_label span.value").text(totalCash);  
   }
-
+  
   function clamp(val, min_val, max_val) {
     return Math.min(Math.max(val, min_val),max_val);
   }
+  
+  // Ok, this was a failed attempt to animate the cash value incrementing after wining/losing
+  // Need a totally differnet approach. Right now it only occurs as the result 
+  // of the ajax call meaning when we hit a button, thus doesn't cover other end
+  // cases that don't occur via an ajax call
+  // Almost got it working, but taking way to much time on it. 
+  // Leaving this function here for my own reference, but i've removed any calls to it
+  function animateCash(number, target) {
+    // var target = ; // the new value
+    // var number = parseInt($("#total_cash_label").data("totalCash")); // the old value to start from
+    // need to accomodate target being higher or lower than start val
+    // target = (target - number) + number;
+    var increment = (target - number) / Math.abs(target - number);
+    alert ("target: " + target + " number: " + number + " increment: " + increment);
+    var interval = setInterval(function() {
+        $("#total_cash_label span.value").text(number);
+        if (number >= target) clearInterval(interval);
+        number += increment;
+    }, 100);   
+  } 
+
 }); // end document.ready
