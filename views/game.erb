@@ -2,8 +2,6 @@
 
 <div id='game_container' class="container">
   
-<!--   <h1>Sinatra Blackjack</h1>
- -->
   <div id='player'>
     <div class='well <%= "active" if @player_active || @msg_type == "success" %> '>
       <h4><%= "#{session[:player_name]}"  %></h4>

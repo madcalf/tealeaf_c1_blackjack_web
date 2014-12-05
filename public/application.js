@@ -63,17 +63,15 @@ $(document).ready(function() {
       // update just the game container
       $("#game_container").replaceWith($(data).find("#game_container"));
       var path = xhr.getResponseHeader("Blackjack-Route");
-      // if (path != "/game/player/hit") {
+      showCards("player");
+      showCards("dealer");
       if (path == "/game/end") {
-        // update the navbar so we can update the score update
-        // new cash data is not available from the DOM unless we update 
-        // the navbar
+        // update the navbar so we can update the score
+        // new cash data is not available from the DOM unless we update navbar
         $(".navbar").replaceWith($(data).find(".navbar"));
         // call this explicitly cuz it doesn'g get called on ajaxified actions
         updateStats();       
       }
-      showCards("player");
-      showCards("dealer");
       
     }); // end done handler
     
@@ -130,6 +128,7 @@ $(document).ready(function() {
         showCards("player");
         showCards("dealer");
         
+        // trigger automatic dealer next action 
         if (path == "/game/dealer/hit") {
           window.setTimeout(function() {
             $("#next input").trigger("click");
@@ -149,7 +148,7 @@ $(document).ready(function() {
   });
     
     
-  // this version uses the "new" class that gets added via the template
+  // this version uses the "new" css class that gets added to the template
   // to cards that were just dealt. So cards are only animated when dealt
   // "new" class is removed from each card after it is dealt
   function showCards(whichPlayer) {
@@ -162,7 +161,6 @@ $(document).ready(function() {
         var startDelay = (index < 2 && whichPlayer == 'dealer') ? 1000 : 0
         // add delay between first and second cards
         var delayBetweenCards = (index == 1) ? secondCardDelay: 0;
-        // if (index == 1) delayBetweenCards = secondCardDelay;
         $(this).delay(startDelay).delay(delayBetweenCards).animate( { width: "show" }, animDuration);
       } else {
         // show immediately, don't animate

@@ -1,16 +1,11 @@
-html {
-}
-
 body {
   background: url(images/bg_table.png) no-repeat center center fixed;
   background-size: cover;  
-  
   font-family: sans-serif;
   font-size: .9em;
   margin-left: 10px;
   /* this was in the html for some reason */
   padding-top: 50px;
-  /*background-color: #ccc;*/
 }
 
 p {
@@ -95,10 +90,6 @@ form {
   text-align: left;
 }
 
-/*.well p {
-  text-align: center;
-}*/
-
 #player .well, #dealer .well {
   margin-left: auto;
   margin-right: auto;  
@@ -132,9 +123,11 @@ div#bet.well {
   text-align: center;
 }
 
-/* this is to get the sliders below the input
+/* 
+this is to get the sliders below the input
 fields cuz, after adding the prepend to the input
-the input needs to be inline-block */
+the input needs to be inline-block 
+*/
 div#new_player.well div, 
 div#add_cash.well div, 
 div#bet.well div{
@@ -172,7 +165,7 @@ div#bet.well .btn{
   display: none;
 }
 
-/* cards for initial(?) hiding and showing */
+/* cards for hiding and showing */
 #dealer li img.hidden {
   display: none;
 }
@@ -183,7 +176,7 @@ div#bet.well .btn{
   font-size: 1em;
 }
 
-/* hit / stay buttons */
+/* hit/stay buttons */
 form#hit input, form#stay input {
   width: 100px;  
 }
@@ -224,7 +217,7 @@ ul.stats li span.value {
   font-weight: bold;
 }
 
-/* override the default top position for the fade in */
+/* override the default top position for the modal fade in */
 .modal.fade.in {
   top: 25%;  
 }
@@ -235,7 +228,6 @@ ul.stats li span.value {
 }
 
 .modal-backdrop {
-  /*background: none;*/
   background-color: gray;
 }
 

@@ -1,15 +1,9 @@
 <!-- username.erb -->
 
-<!-- <h1>Sinatra Blackjack</h1>
- -->
 <div id="bet" class="well">
   <form action="/bet" method="POST">
-      <!-- <h2>Welcome <%= session[:player_name] %>!</h2> -->
       <h3>Place your bet, <%= session[:player_name] %>!</h3>
       <% if session[:total_cash].to_i > 0 %>
-       
-        <!-- <form action="/bet" method="POST"> -->
-          <!-- <label for="bet_input">Ok <%= session[:player_name] %>, place your bet!</label> -->
           <h4>You have $<%= session[:total_cash] %>.</h4>
           <h5>Minimum bet is $<%= session[:min_bet] %>.</h5>
           <div class="input-prepend">
@@ -18,7 +12,6 @@
           </div>
            <div id="slider_bet" data-min-bet="<%= session[:min_bet] %>"></div>
           <br>
-        <!-- </form> -->
         <script src="/bet.js" type="text/javascript"></script>
       <% else %>
         <div class="alert alert-error">
@@ -28,7 +21,6 @@
  
        <% if session[:total_cash].to_i > 0 %>
         <input type="submit" value="Let Me Play!" class="btn btn-primary">
-        <!-- <a href="/bet" class="btn btn-primary">Play Again</a> -->
         <a href="/" class="btn">Never mind!</a>
       <% else %>
         <a href="/add_cash" class="btn btn-primary">Get more cash</a>        

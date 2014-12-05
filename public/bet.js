@@ -3,11 +3,8 @@ $(document).ready(function() {
    // --------- 
   // Bet Page 
   // ---------   
-  
-  // clear out the top bet label, since it's confusing
-  // $("#current_bet_label").val("");
-  
-  // ==== THIS and clamp() SHOULD ONLY EXIST ONCE IN APPLICATION.js, NEED TO FIGURE THAT OUT
+    
+  // == TO DO: THIS BIT and clamp() function SHOULD ONLY EXIST ONCE IN application.js... 
   var lastBet = $("#bet_label").data("bet");
   var totalCash = $("#total_cash_label").data("totalCash");
   $("#bet_label span.value").text(lastBet);

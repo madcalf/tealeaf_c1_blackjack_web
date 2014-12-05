@@ -83,9 +83,6 @@ helpers do
   end
   
   def is_new_card(index, who)
-    # puts("is_new_card() index: #{index} who: #{who}")
-    # puts("#{who=='player'}")
-    # puts("#{who.eql?("player")}")
     return session[:player_new_cards].include?(index) if who.eql?("player")
     return session[:dealer_new_cards].include?(index) if who.eql?("dealer")
   end
@@ -221,21 +218,9 @@ post '/game/player/stay' do
   @player_active = false
   @dealer_active = true
   
-  # auto deal dealer card 
-  # redirect '/game/dealer/next'
   erb :game
 end
 
-# for automated dealer
-get '/game/dealer/next' do
-  if session[:dealer_value][:final] < STAY_VALUE
-    redirect '/game/dealer/hit'
-  else
-    redirect '/game/dealer/stay'
-  end
-end
-
-# manual button controlled dealer
 post '/game/dealer/next' do
   if session[:dealer_value][:final] < STAY_VALUE
     redirect '/game/dealer/hit'
@@ -257,8 +242,6 @@ get '/game/dealer/hit' do
   end
   @dealer_active = true
  
-  # redirect 'game/dealer/next'
-  # sleep(1) # this causes one delay then all hits, not a delay between hits
   erb :game  
 end
 
