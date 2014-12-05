@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
     <script src="/vendor/jquery-1.11.1.min.js" type="text/javascript"></script>
     <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
-    <script src="/vendor/jquery.wait.js"></script>
     <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
     <script src="/application.js" type="text/javascript"></script>
 
@@ -19,8 +18,9 @@
         <div class="navbar-inner">
           <div class="container">
               <ul class="nav">
-                <li class="btn btn-link"><a href="/new_player">New Player</a></li>
-                <li class="btn btn-link"><a href="/bet">New Game</a></li>
+                <a href="/"><h1>Sinatra Blackjack</h1></a>
+                <!-- <li class="btn btn-link"><a href="/new_player">New Player</a></li>
+                <!-- <li class="btn btn-link"><a href="/bet">New Game</a></li> -->
               </ul>
               
               <ul class="stats">
@@ -42,6 +42,7 @@
       </div>
 
       <div id="content_container" class="container">
+        <!-- <h1>Sinatra Blackjack</h1> -->
         <%if @error %>
           <div class="alert alert-error"><%=@error%></div>
         <% end %>

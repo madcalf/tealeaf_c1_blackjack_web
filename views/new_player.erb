@@ -1,14 +1,22 @@
 <!-- username.erb -->
 
-<!-- <h4>Welcome to Tealeaf Blackjack!</h4> -->
-<form action="/new_player" method="POST">
-  <label for="player_name">Hi there! Please tell me your name.</label>
-  <!-- <input type="text" name="player_name" placeholder="<%= session[:default_name] %>"> -->
-  <input type="text" name="player_name" placeholder="Make one up for me...">
-
-  <label for="input_total_cash">How much cash would you like to start with?</label>
-  <input id="input_total_cash" type="text" name="input_total_cash">
-  <div id="slider_start_cash"></div>
-  <br>
-  <input type="submit" value="Enter!" class="btn btn-small">
-</form>
+<!-- <h1>Welcome to Sinatra Blackjack!</h1> -->
+<div id="new_player" class="well">
+  <div>
+    <form action="/new_player" method="POST">
+      <!-- <label for="player_name"></label> -->
+      <h3>Welcome!</h3>
+      <h4>Please enter your name.</h4>
+      <input type="text" id="player_name" name="player_name" placeholder="Or I could make one up for you ...">
+      
+      <label for="input_total_cash"><h4>How much cash will you start with?</h4></label>
+      <div class="input-prepend">
+        <span class="add-on">$</span>
+        <input id="input_total_cash" type="text" name="input_total_cash">
+      </div>
+      
+      <div id="slider_start_cash"></div>
+      <input type="submit" value="Enter!" class="btn">
+    </form>
+  </div>
+</div>

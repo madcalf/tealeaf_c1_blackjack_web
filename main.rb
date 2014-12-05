@@ -95,7 +95,7 @@ helpers do
   end
   
   def set_random_name
-    session[:default_name] = ["Boomer", "Helo", "Athena", "Apollo", "Starbuck", "Frodo", "Gandalf", "Mal", "Arwen", "Leia", "Luke", "Zora", "Sherlock", "Gaius", "Crashdown", "Zoe", "Jayne", "Galadriel", "Smeagol", "Beru", "Petra"].sample
+    session[:default_name] = ["Boomer", "Helo", "Athena", "Apollo", "Starbuck", "Frodo", "Smeagol", "Gandalf", "Mal", "Arwen", "Leia", "Luke", "Zora", "Sherlock", "Gaius", "Crashdown", "Zoe", "Jayne", "Galadriel", "Smeagol", "Beru", "Petra", "Eowyn", "Lando"].sample
   end 
   
 end # helpers
@@ -283,7 +283,7 @@ get '/game/end' do
     end
   elsif bust?(session[:player_cards])
       @end_msg_header = "Dealer wins!!"
-      @end_msg = "Cuz you busted, #{session[:player_name]}!"
+      @end_msg = "Cuz you <em>busted</em>, #{session[:player_name]}!"
       @msg_type = "error"
   elsif bust?(session[:dealer_cards])
       @end_msg_header = "#{session[:player_name]}, you win!!"
@@ -311,13 +311,13 @@ get '/game/end' do
   # note: looks like session vars are strings, need to convert them!
   if @msg_type == "error" 
     session[:total_cash] = session[:total_cash].to_i - session[:bet].to_i
-  elsif @msg_type == "succedss"
+  elsif @msg_type == "success"
     session[:total_cash] = session[:total_cash].to_i + session[:bet].to_i 
   end
   # clamp to zero if negative
   session[:total_cash] = [0, session[:total_cash].to_i].max
   if session[:total_cash] == 0 || session[:total_cash] < session[:min_bet]
-    @out_of_cash_msg = "You're out of cash, #{session[:player_name]}!<br>Come back when you're not so broke!"
+    @out_of_cash_msg = "Looks like you're out of cash, #{session[:player_name]}!<br>Come back when you're not so broke!"
   end
 
   erb :game

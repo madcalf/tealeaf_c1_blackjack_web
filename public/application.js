@@ -183,6 +183,7 @@ $(document).ready(function() {
     return Math.min(Math.max(val, min_val),max_val);
   }
   
+  // ---------------- //
   // Ok, this was a failed attempt to animate the cash value incrementing after wining/losing
   // Need a totally differnet approach. Right now it only occurs as the result 
   // of the ajax call meaning when we hit a button, thus doesn't cover other end
@@ -190,12 +191,9 @@ $(document).ready(function() {
   // Almost got it working, but taking way to much time on it. 
   // Leaving this function here for my own reference, but i've removed any calls to it
   function animateCash(number, target) {
-    // var target = ; // the new value
-    // var number = parseInt($("#total_cash_label").data("totalCash")); // the old value to start from
-    // need to accomodate target being higher or lower than start val
-    // target = (target - number) + number;
+    // accomodate target being higher or lower than start val
     var increment = (target - number) / Math.abs(target - number);
-    alert ("target: " + target + " number: " + number + " increment: " + increment);
+    // alert ("target: " + target + " number: " + number + " increment: " + increment);
     var interval = setInterval(function() {
         $("#total_cash_label span.value").text(number);
         if (number >= target) clearInterval(interval);
